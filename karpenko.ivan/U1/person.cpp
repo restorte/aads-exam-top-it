@@ -35,4 +35,26 @@ namespace karpenko {
         return true;
     }
 
+    void clearList(Node*& head) {
+        Node* cur = head;
+        while (cur != NULL) {
+            Node* next = cur->next;
+            delete cur;
+            cur = next;
+        }
+        head = NULL;
+    }
+
+    void printList(const Node* head, std::ostream& out) {
+        const Node* cur = head;
+        while (cur != NULL) {
+            out << cur->data.id << ' ' << cur->data.info << '\n';
+            cur = cur->next;
+        }
+    }
+
+    void printStats(size_t accepted, size_t ignored, std::ostream& err) {
+        err << accepted << ' ' << ignored << '\n';
+    }
+
 }
