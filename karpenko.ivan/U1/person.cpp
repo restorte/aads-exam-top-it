@@ -23,7 +23,12 @@ namespace karpenko {
         }
 
         Node* newNode = new Node;
-        newNode->data = p;
+        try {
+            newNode->data = p;
+        } catch (...) {
+            delete newNode;
+            throw;
+        }
         newNode->next = NULL;
 
         if (tail == NULL) {
@@ -84,8 +89,9 @@ namespace karpenko {
             return false;
         }
 
-        out.id = id;
-        out.info = info;
+        Person tmp;
+        tmp.id = id;
+        out = tmp;
         return true;
     }
 

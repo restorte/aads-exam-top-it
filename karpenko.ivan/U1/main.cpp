@@ -1,5 +1,6 @@
 #include "person.hpp"
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <cstdlib>
 
@@ -33,30 +34,70 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    std::istream* inPtr = &std::cin;
+    std::ifstream inStream;
+    if (hasIn) {
+        inStream.open(inFile.c_str());
+        if (!inStream.is_open()) {
+            return 2;
+        }
+        inPtr = &inStream;
+    }
+
+    std::ostream* outPtr = &std::cout;
+    std::ofstream outStream;
+    if (hasOut) {
+        outStream.open(outFile.c_str());
+        if (!outStream.is_open()) {
+            return 2;
+        }
+        outPtr = &outStream;
+    }
+
     karpenko::Node* head = NULL;
     karpenko::Node* tail = NULL;
     size_t accepted = 0;
     size_t ignored = 0;
 
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        karpenko::Person p;
-        bool ok = karpenko::parseLine(line, p);
-        if (!ok) {
-            ++ignored;
-            continue;
+    try {
+        std::string line;
+        while (std::getline(*inPtr, line)) {
+            karpenko::Person p;
+            bool ok = karpenko::parseLine(line, p);
+            if (!ok) {
+                ++ignored;
+                continue;
+            }
+            bool added = karpenko::addPerson(head, tail, p);
+            if (added) {
+                ++accepted;
+            } else {
+                ++ignored;
+            }
         }
-        bool added = karpenko::addPerson(head, tail, p);
-        if (added) {
-            ++accepted;
-        } else {
-            ++ignored;
+
+        karpenko::printList(head, *outPtr);
+        karpenko::printStats(accepted, ignored, std::cerr);
+
+    } catch (...) {
+        karpenko::clearList(head);
+        if (hasIn && inStream.is_open()) {
+            inStream.close();
         }
+        if (hasOut && outStream.is_open()) {
+            outStream.close();
+        }
+        return 2;
     }
 
-    karpenko::printList(head, std::cout);
-    karpenko::printStats(accepted, ignored, std::cerr);
-
     karpenko::clearList(head);
+
+    if (hasIn && inStream.is_open()) {
+        inStream.close();
+    }
+    if (hasOut && outStream.is_open()) {
+        outStream.close();
+    }
+
     return 0;
 }
