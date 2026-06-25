@@ -1,5 +1,5 @@
-#ifndef CORE_H
-#define CORE_H
+#ifndef PERSON_HPP
+#define PERSON_HPP
 
 #include <string>
 #include <iosfwd>
