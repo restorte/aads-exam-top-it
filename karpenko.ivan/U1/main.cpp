@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <cstdlib>
+#include <cctype>
 
 static bool parseArgs(int argc, char *argv[], std::string &inFile, std::string &outFile, bool &hasIn, bool &hasOut)
 {
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
 
   if (!parseArgs(argc, argv, inFile, outFile, hasIn, hasOut))
   {
+    std::cerr << "Invalid arguments\n";
     return 1;
   }
 
@@ -65,6 +67,7 @@ int main(int argc, char *argv[])
     inStream.open(inFile.c_str());
     if (!inStream.is_open())
     {
+      std::cerr << "Cannot open input file\n";
       return 2;
     }
     inPtr = &inStream;
@@ -74,12 +77,14 @@ int main(int argc, char *argv[])
   karpenko::Node *tail = NULL;
   size_t accepted = 0;
   size_t ignored = 0;
+  bool hasLines = false;
 
   try
   {
     std::string line;
     while (std::getline(*inPtr, line))
     {
+      hasLines = true;
       if (isWhitespaceLine(line))
       {
         continue;
@@ -124,6 +129,7 @@ int main(int argc, char *argv[])
     if (!outStream.is_open())
     {
       karpenko::clearList(head);
+      std::cerr << "Cannot open output file\n";
       return 2;
     }
     outPtr = &outStream;
@@ -132,7 +138,10 @@ int main(int argc, char *argv[])
   try
   {
     karpenko::printList(head, *outPtr);
-    karpenko::printStats(accepted, ignored, std::cerr);
+    if (hasLines)
+    {
+      karpenko::printStats(accepted, ignored, std::cerr);
+    }
   }
   catch (...)
   {
