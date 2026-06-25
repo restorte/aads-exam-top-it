@@ -4,6 +4,7 @@
 #include <string>
 #include <cstdlib>
 #include <cctype>
+#include <limits>
 
 static bool parseArgs(int argc, char *argv[], std::string &inFile, std::string &outFile, bool &hasIn, bool &hasOut)
 {
@@ -37,18 +38,6 @@ static bool parseArgs(int argc, char *argv[], std::string &inFile, std::string &
   return true;
 }
 
-static bool isWhitespaceLine(const std::string &line)
-{
-  for (size_t i = 0; i < line.size(); ++i)
-  {
-    if (!std::isspace(static_cast<unsigned char>(line[i])))
-    {
-      return false;
-    }
-  }
-  return true;
-}
-
 int main(int argc, char *argv[])
 {
   std::string inFile, outFile;
@@ -56,7 +45,8 @@ int main(int argc, char *argv[])
 
   if (!parseArgs(argc, argv, inFile, outFile, hasIn, hasOut))
   {
-    return 1;
+    std::cerr << "Invalid arguments\n";
+    return 0;
   }
 
   std::istream *inPtr = &std::cin;
@@ -76,44 +66,36 @@ int main(int argc, char *argv[])
   karpenko::Node *tail = NULL;
   size_t accepted = 0;
   size_t ignored = 0;
-  bool hasNonEmptyLines = false;
+  size_t count = 0;
 
-  try
+  while (inPtr->good() && !inPtr->eof())
   {
-    std::string line;
-    while (std::getline(*inPtr, line))
+    karpenko::Person p;
+    if (*inPtr >> p)
     {
-      if (isWhitespaceLine(line))
-      {
-        continue;
-      }
-
-      hasNonEmptyLines = true;
-
-      karpenko::Person p;
-      bool ok = karpenko::parseLine(line, p);
-      if (!ok)
-      {
-        ++ignored;
-        continue;
-      }
       bool added = karpenko::addPerson(head, tail, p);
       if (added)
       {
         ++accepted;
+        ++count;
       }
       else
       {
         ++ignored;
       }
     }
-  }
-  catch (...)
-  {
-    karpenko::clearList(head);
-    if (hasIn && inStream.is_open())
-      inStream.close();
-    return 2;
+    else
+    {
+      if (!inPtr->eof())
+      {
+        ++ignored;
+        inPtr->clear();
+        if (inPtr->fail())
+        {
+          inPtr->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+      }
+    }
   }
 
   if (hasIn && inStream.is_open())
@@ -135,25 +117,16 @@ int main(int argc, char *argv[])
     outPtr = &outStream;
   }
 
-  try
+  if (count == 0)
+  {
+    *outPtr << '\n';
+  }
+  else
   {
     karpenko::printList(head, *outPtr);
-    if (hasNonEmptyLines)
-    {
-      karpenko::printStats(accepted, ignored, std::cerr);
-    }
-    if (!hasNonEmptyLines)
-    {
-      *outPtr << '\n';
-    }
   }
-  catch (...)
-  {
-    karpenko::clearList(head);
-    if (hasOut && outStream.is_open())
-      outStream.close();
-    return 2;
-  }
+
+  karpenko::printStats(accepted, ignored, std::cerr);
 
   karpenko::clearList(head);
 
