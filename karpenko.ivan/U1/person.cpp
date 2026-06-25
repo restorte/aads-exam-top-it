@@ -22,18 +22,18 @@ namespace karpenko
       return in;
     }
 
-    while (in.good() && std::isspace(static_cast<unsigned char>(in.peek())) && in.peek() != '\n') {
+    while (in.good() && std::isspace(static_cast< unsigned char >(in.peek())) && in.peek() != '\n') {
       in.get();
     }
 
     std::getline(in, input.info);
 
     size_t start = 0;
-    while (start < input.info.length() && std::isspace(static_cast<unsigned char>(input.info[start]))) {
+    while (start < input.info.length() && std::isspace(static_cast< unsigned char >(input.info[start]))) {
       ++start;
     }
     size_t end = input.info.length();
-    while (end > start && std::isspace(static_cast<unsigned char>(input.info[end - 1]))) {
+    while (end > start && std::isspace(static_cast< unsigned char >(input.info[end - 1]))) {
       --end;
     }
     input.info = input.info.substr(start, end - start);

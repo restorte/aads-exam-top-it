@@ -54,8 +54,11 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  std::istream *inPtr = &std::cin;
   std::ifstream inStream;
+  std::ofstream outStream;
+  std::istream *inPtr = &std::cin;
+  std::ostream *outPtr = &std::cout;
+
   if (hasIn)
   {
     inStream.open(inFile.c_str());
@@ -73,34 +76,46 @@ int main(int argc, char *argv[])
   size_t ignored = 0;
   size_t count = 0;
 
-  while (inPtr->good() && !inPtr->eof())
+  try
   {
-    karpenko::Person p;
-    if (*inPtr >> p)
+    while (inPtr->good() && !inPtr->eof())
     {
-      bool added = karpenko::addPerson(head, tail, p);
-      if (added)
+      karpenko::Person p;
+      if (*inPtr >> p)
       {
-        ++accepted;
-        ++count;
+        bool added = karpenko::addPerson(head, tail, p);
+        if (added)
+        {
+          ++accepted;
+          ++count;
+        }
+        else
+        {
+          ++ignored;
+        }
       }
       else
       {
-        ++ignored;
-      }
-    }
-    else
-    {
-      if (!inPtr->eof())
-      {
-        ++ignored;
-        inPtr->clear();
-        if (inPtr->fail())
+        if (!inPtr->eof())
         {
-          inPtr->ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+          ++ignored;
+          inPtr->clear();
+          if (inPtr->fail())
+          {
+            inPtr->ignore(std::numeric_limits< std::streamsize >::max(), '\n');
+          }
         }
       }
     }
+  }
+  catch (...)
+  {
+    karpenko::clearList(head);
+    if (hasIn && inStream.is_open())
+      inStream.close();
+    if (hasOut && outStream.is_open())
+      outStream.close();
+    return 2;
   }
 
   if (hasIn && inStream.is_open())
@@ -108,8 +123,6 @@ int main(int argc, char *argv[])
     inStream.close();
   }
 
-  std::ostream *outPtr = &std::cout;
-  std::ofstream outStream;
   if (hasOut)
   {
     outStream.open(outFile.c_str());
@@ -122,16 +135,25 @@ int main(int argc, char *argv[])
     outPtr = &outStream;
   }
 
-  if (count == 0)
+  try
   {
-    *outPtr << '\n';
+    if (count == 0)
+    {
+      *outPtr << '\n';
+    }
+    else
+    {
+      karpenko::printList(head, *outPtr);
+    }
+    karpenko::printStats(accepted, ignored, std::cerr);
   }
-  else
+  catch (...)
   {
-    karpenko::printList(head, *outPtr);
+    karpenko::clearList(head);
+    if (hasOut && outStream.is_open())
+      outStream.close();
+    return 2;
   }
-
-  karpenko::printStats(accepted, ignored, std::cerr);
 
   karpenko::clearList(head);
 
