@@ -142,6 +142,10 @@ int main(int argc, char *argv[])
     {
       karpenko::printStats(accepted, ignored, std::cerr);
     }
+    else
+    {
+      *outPtr << '\n';
+    }
   }
   catch (...)
   {
