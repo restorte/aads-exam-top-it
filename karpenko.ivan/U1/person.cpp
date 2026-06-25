@@ -45,6 +45,50 @@ namespace karpenko {
         head = NULL;
     }
 
+    static size_t skipSpaces(const std::string& s, size_t pos) {
+        while (pos < s.size() && std::isspace(static_cast< unsigned char >(s[pos]))) {
+            ++pos;
+        }
+        return pos;
+    }
+
+    bool parseLine(const std::string& line, Person& out) {
+        size_t pos = skipSpaces(line, 0);
+        if (pos == line.size()) {
+            return false;
+        }
+
+        size_t start = pos;
+        while (pos < line.size() && !std::isspace(static_cast< unsigned char >(line[pos]))) {
+            ++pos;
+        }
+        std::string idStr = line.substr(start, pos - start);
+
+        size_t id;
+        try {
+            id = static_cast<size_t>(std::stoul(idStr));
+        } catch (const std::exception&) {
+            return false;
+        }
+
+        pos = skipSpaces(line, pos);
+        if (pos == line.size()) {
+            return false;
+        }
+
+        std::string info = line.substr(pos);
+        while (!info.empty() && std::isspace(static_cast< unsigned char >(info.back()))) {
+            info.pop_back();
+        }
+        if (info.empty()) {
+            return false;
+        }
+
+        out.id = id;
+        out.info = info;
+        return true;
+    }
+
     void printList(const Node* head, std::ostream& out) {
         const Node* cur = head;
         while (cur != NULL) {
