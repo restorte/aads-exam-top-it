@@ -1,4 +1,4 @@
-#include "person.hpp"
+#include "../common/person.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
