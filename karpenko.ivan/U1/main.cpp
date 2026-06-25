@@ -56,7 +56,6 @@ int main(int argc, char *argv[])
 
   if (!parseArgs(argc, argv, inFile, outFile, hasIn, hasOut))
   {
-    std::cerr << "Invalid arguments\n";
     return 1;
   }
 
