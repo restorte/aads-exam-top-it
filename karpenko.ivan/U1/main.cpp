@@ -40,6 +40,12 @@ static bool parseArgs(int argc, char *argv[], std::string &inFile, std::string &
 
 int main(int argc, char *argv[])
 {
+  if (argc > 3)
+  {
+    std::cerr << "Too many arguments\n";
+    return 0;
+  }
+
   std::string inFile, outFile;
   bool hasIn = false, hasOut = false;
 
